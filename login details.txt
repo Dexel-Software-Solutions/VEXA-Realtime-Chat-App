@@ -1,0 +1,7 @@
+=====================================================================
+ ChatApp Enterprise Deployment & Security Note
+=====================================================================
+
+Plaintext user credentials have been removed for security compliance.
+To test the application, register a new account via the mobile app
+or seed test users using hashed passwords defined in the schema file.

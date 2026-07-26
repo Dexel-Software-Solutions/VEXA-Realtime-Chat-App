@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  database:
+    image: mysql:8.0
+    container_name: chatapp_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: chatapp_db
+      MYSQL_USER: chatapp_user
+      MYSQL_PASSWORD: chatapp_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./chatapp_database_schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./ChatAppBackend
+      dockerfile: Dockerfile
+    container_name: chatapp_api
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      DB_HOST: database
+      DB_PORT: 3306
+      DB_USER: chatapp_user
+      DB_PASSWORD: chatapp_password
+      DB_NAME: chatapp_db
+      JWT_SECRET: supersecretkey_production_vault_9921
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - ./ChatAppBackend/uploads:/app/uploads
+
+volumes:
+  mysql_data:
